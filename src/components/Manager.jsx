@@ -31,7 +31,7 @@ const Manager = () => {
                 return;
             }
 
-            let req = await fetch("http://localhost:3000/api/passwords", {
+            let req = await fetch("https://password-manager-l927.onrender.com/api/passwords", {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -93,7 +93,7 @@ const Manager = () => {
 
                 // If editing an existing password, delete it first
                 if (form.id) {
-                    await fetch(`http://localhost:3000/api/passwords/${form.id}`, { 
+                    await fetch(`https://password-manager-l927.onrender.com/api/passwords/${form.id}`, { 
                         method: "DELETE", 
                         headers: { 
                             "Content-Type": "application/json",
@@ -107,7 +107,7 @@ const Manager = () => {
                 setPasswordArray([...passwordArray, { ...form, id: newId }]);
                 
                 // Save to backend
-                await fetch("http://localhost:3000/api/passwords", { 
+                await fetch("https://password-manager-l927.onrender.com/api/passwords", { 
                     method: "POST", 
                     headers: { 
                         "Content-Type": "application/json",
@@ -152,7 +152,7 @@ const Manager = () => {
                 setPasswordArray(passwordArray.filter(item => item.id !== id));
                 
                 // Then perform backend operation
-                await fetch(`http://localhost:3000/api/passwords/${id}`, {
+                await fetch(`https://password-manager-l927.onrender.com/api/passwords/${id}`, {
                     method: "DELETE", 
                     headers: {
                         "Content-Type": "application/json",
