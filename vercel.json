@@ -3,7 +3,7 @@
     "builds": [
       { "src": "package.json", "use": "@vercel/vite" },
       { "src": "api/**/*.js", "use": "@vercel/node" }
-    ],
+    ], 
     "routes": [
       { "src": "/api/(.*)", "dest": "/api/$1" },
       { "src": "/(.*)", "dest": "/index.html" }
