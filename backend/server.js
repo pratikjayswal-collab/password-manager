@@ -45,7 +45,7 @@ const authenticateToken = (req, res, next) => {
 }
 
 // Register endpoint
-app.post('/api/auth/register', async (req, res) => {
+app.post('https://password-manager-l927.onrender.com/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body
     
@@ -88,7 +88,7 @@ app.post('/api/auth/register', async (req, res) => {
 })
 
 // Login endpoint
-app.post('/api/auth/login', async (req, res) => {
+app.post('https://password-manager-l927.onrender.com/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body
     
@@ -172,7 +172,7 @@ app.get('/api/passwords', async (req, res) => {
 })
 
 // Save a password
-app.post('/api/passwords', async (req, res) => {
+app.post('https://password-manager-l927.onrender.com/api/passwords', async (req, res) => {
   try {
     const password = {
       ...req.body,
@@ -224,7 +224,7 @@ app.get('/', authenticateToken, async (req, res) => {
   }
 })
 
-app.post('/', authenticateToken, async (req, res) => {
+app.post('https://password-manager-l927.onrender.com/', authenticateToken, async (req, res) => {
   try {
     const password = {
       ...req.body,
