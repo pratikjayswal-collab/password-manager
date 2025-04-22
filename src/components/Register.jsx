@@ -13,7 +13,7 @@ const Register = () => {
     const navigate = useNavigate();
     
     // API base URL - use environment variable or fallback to your Render URL
-    const API_URL = process.env.REACT_APP_API_URL || 'https://password-manager-l927.onrender.com';
+    const API_URL = 'https://password-manager-l927.onrender.com';
 
     useEffect(() => {
         // Check if user is already logged in
