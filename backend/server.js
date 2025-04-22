@@ -1,5 +1,5 @@
 const express = require('express')
-const dotenv = require('dotenv') // Fixed typo in the variable name
+const dotenv = require('dotenv')
 const { MongoClient, ObjectId } = require('mongodb')
 const bodyparser = require('body-parser')
 const cors = require('cors')
@@ -16,8 +16,14 @@ const client = new MongoClient(url)
 const dbName = 'passop'
 const app = express()
 const port = process.env.PORT || 3000
+
+// Configure CORS to accept requests from your Vercel domain
+app.use(cors({
+  origin: ['https://your-vercel-app-domain.vercel.app', 'http://localhost:3000', 'http://localhost:5173'],
+  credentials: true
+}))
+
 app.use(bodyparser.json())
-app.use(cors())
 
 // Connect to MongoDB
 client.connect()
@@ -45,7 +51,7 @@ const authenticateToken = (req, res, next) => {
 }
 
 // Register endpoint
-app.post('https://password-manager-l927.onrender.com/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password } = req.body
     
@@ -88,7 +94,7 @@ app.post('https://password-manager-l927.onrender.com/api/auth/register', async (
 })
 
 // Login endpoint
-app.post('https://password-manager-l927.onrender.com/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body
     
@@ -172,7 +178,7 @@ app.get('/api/passwords', async (req, res) => {
 })
 
 // Save a password
-app.post('https://password-manager-l927.onrender.com/api/passwords', async (req, res) => {
+app.post('/api/passwords', async (req, res) => {
   try {
     const password = {
       ...req.body,
@@ -224,7 +230,7 @@ app.get('/', authenticateToken, async (req, res) => {
   }
 })
 
-app.post('https://password-manager-l927.onrender.com/', authenticateToken, async (req, res) => {
+app.post('/', authenticateToken, async (req, res) => {
   try {
     const password = {
       ...req.body,
@@ -254,6 +260,11 @@ app.delete('/', authenticateToken, async (req, res) => {
     console.error('Error:', error)
     res.status(500).json({ message: 'Server error' })
   }
+})
+
+// Add a simple health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' })
 })
 
 app.listen(port, () => {

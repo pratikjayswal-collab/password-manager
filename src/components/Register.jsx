@@ -11,6 +11,9 @@ const Register = () => {
         confirmPassword: ''
     });
     const navigate = useNavigate();
+    
+    // API base URL - use environment variable or fallback to your Render URL
+    const API_URL = process.env.REACT_APP_API_URL || 'https://password-manager-l927.onrender.com';
 
     useEffect(() => {
         // Check if user is already logged in
@@ -39,7 +42,7 @@ const Register = () => {
         }
         
         try {
-            const response = await fetch('https://password-manager-l927.onrender.com/api/auth/register', {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -6,13 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-// for running app :- run backed separately by node --watch server.js and then this app by npm run dev.
-
 const Manager = () => {
     const ref = useRef();
     const passwordRef = useRef();
     const [form, setform] = useState({ site: "", username: "", password: "" });
     const [passwordArray, setPasswordArray] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     // Check for authentication
@@ -24,6 +24,8 @@ const Manager = () => {
     }, [navigate]);
 
     const getPasswords = async () => {
+        setIsLoading(true);
+        setError(null);
         try {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -31,7 +33,7 @@ const Manager = () => {
                 return;
             }
 
-            let req = await fetch("https://password-manager-l927.onrender.com/api/passwords", {
+            const req = await fetch("https://password-manager-l927.onrender.com/api/passwords", {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -41,15 +43,23 @@ const Manager = () => {
                 // Token expired or invalid
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
+                toast.error("Session expired. Please login again.");
                 navigate('/login');
                 return;
             }
+
+            if (!req.ok) {
+                throw new Error(`Error ${req.status}: ${req.statusText}`);
+            }
             
-            let passwords = await req.json();
+            const passwords = await req.json();
             setPasswordArray(passwords);
         } catch (error) {
             console.error("Error fetching passwords:", error);
-            toast.error("Failed to fetch passwords");
+            setError(error.message);
+            toast.error(`Failed to fetch passwords: ${error.message}`);
+        } finally {
+            setIsLoading(false);
         }
     };
     
@@ -72,7 +82,6 @@ const Manager = () => {
     };
 
     const showPassword = () => {
-        passwordRef.current.type = "text";
         if (ref.current.src.includes("icons/eyecross.png")) {
             ref.current.src = "icons/eye.png";
             passwordRef.current.type = "password";
@@ -91,23 +100,28 @@ const Manager = () => {
                     return;
                 }
 
+                setIsLoading(true);
+
                 // If editing an existing password, delete it first
                 if (form.id) {
-                    await fetch(`https://password-manager-l927.onrender.com/api/passwords/${form.id}`, { 
+                    const deleteResponse = await fetch(`https://password-manager-l927.onrender.com/api/passwords/${form.id}`, { 
                         method: "DELETE", 
                         headers: { 
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
                         }
                     });
+                    
+                    if (!deleteResponse.ok) {
+                        const errorData = await deleteResponse.json();
+                        throw new Error(errorData.message || "Failed to delete existing password");
+                    }
                 }
 
-                const newId = uuidv4();
-                // Add to local state immediately for responsive UI
-                setPasswordArray([...passwordArray, { ...form, id: newId }]);
+                const newId = form.id || uuidv4();
                 
                 // Save to backend
-                await fetch("https://password-manager-l927.onrender.com/api/passwords", { 
+                const saveResponse = await fetch("https://password-manager-l927.onrender.com/api/passwords", { 
                     method: "POST", 
                     headers: { 
                         "Content-Type": "application/json",
@@ -115,6 +129,19 @@ const Manager = () => {
                     }, 
                     body: JSON.stringify({ ...form, id: newId }) 
                 });
+                
+                if (!saveResponse.ok) {
+                    const errorData = await saveResponse.json();
+                    throw new Error(errorData.message || "Failed to save password");
+                }
+
+                // Add to local state after successful save
+                if (!form.id) {
+                    setPasswordArray([...passwordArray, { ...form, id: newId }]);
+                } else {
+                    // For edits, re-fetch passwords to ensure consistency
+                    await getPasswords();
+                }
 
                 // Clear the form
                 setform({ site: "", username: "", password: "" });
@@ -130,7 +157,9 @@ const Manager = () => {
                 });
             } catch (error) {
                 console.error("Error saving password:", error);
-                toast.error("Failed to save password");
+                toast.error(`Failed to save password: ${error.message}`);
+            } finally {
+                setIsLoading(false);
             }
         } else {
             toast.error('Error: All fields must be at least 4 characters!');
@@ -148,17 +177,24 @@ const Manager = () => {
                     return;
                 }
 
+                setIsLoading(true);
+
                 // Update UI first for responsiveness
                 setPasswordArray(passwordArray.filter(item => item.id !== id));
                 
                 // Then perform backend operation
-                await fetch(`https://password-manager-l927.onrender.com/api/passwords/${id}`, {
+                const response = await fetch(`https://password-manager-l927.onrender.com/api/passwords/${id}`, {
                     method: "DELETE", 
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     }
                 });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || "Failed to delete password");
+                }
                 
                 toast.success('Password Deleted!', {
                     position: "top-right",
@@ -172,18 +208,22 @@ const Manager = () => {
                 });
             } catch (error) {
                 console.error("Error deleting password:", error);
-                toast.error("Failed to delete password");
+                toast.error(`Failed to delete password: ${error.message}`);
                 // Refresh the password list in case the deletion failed
                 getPasswords();
+            } finally {
+                setIsLoading(false);
             }
         }
     };
 
     const editPassword = (id) => {
         console.log("editing password with id " + id);
-        setform({...passwordArray.filter(item => item.id === id)[0], id: id});
-        // Remove from list to prevent duplication
-        setPasswordArray(passwordArray.filter(item => item.id !== id));
+        const passwordToEdit = passwordArray.find(item => item.id === id);
+        if (passwordToEdit) {
+            setform({...passwordToEdit});
+            // We don't remove from the list until save is successful
+        }
     };
 
     const handleChange = (e) => {
@@ -216,18 +256,31 @@ const Manager = () => {
                             </span>
                         </div>
                     </div>
-                    <button onClick={savePassword} className='flex justify-center items-center gap-2 bg-green-500 rounded-full px-4 py-2 w-fit hover:bg-green-600 border hover:border-2 border-green-800 h-[6vh]'>
+                    <button 
+                        onClick={savePassword} 
+                        disabled={isLoading}
+                        className='flex justify-center items-center gap-2 bg-green-500 rounded-full px-4 py-2 w-fit hover:bg-green-600 border hover:border-2 border-green-800 h-[6vh] disabled:opacity-50'
+                    >
                         <lord-icon
                             src="https://cdn.lordicon.com/jgnvfzqg.json"
                             trigger="hover">
                         </lord-icon>
-                        Save</button>
+                        {isLoading ? 'Saving...' : 'Save'}
+                    </button>
                 </div>
 
                 <div className="passwords">
                     <h2 className='font-bold text-2xl py-4'>Your Passwords</h2>
-                    {passwordArray.length === 0 && <div>No Passwords to show</div>}
-                    {passwordArray.length != 0 &&
+                    
+                    {isLoading && <div className="text-center py-4">Loading passwords...</div>}
+                    
+                    {error && <div className="text-red-500 text-center py-4">Error: {error}</div>}
+                    
+                    {!isLoading && !error && passwordArray.length === 0 && 
+                        <div className="text-center py-4">No Passwords to show</div>
+                    }
+                    
+                    {!isLoading && !error && passwordArray.length > 0 &&
                         <table className="table-auto w-full overflow-hidden rounded-md">
                             <thead className='bg-green-800 text-white'>
                                 <tr>
@@ -242,7 +295,7 @@ const Manager = () => {
                                     return <tr key={index}>
                                         <td className='py-2 border border-white text-center'>
                                             <div className='flex items-center justify-center '>
-                                                <a href={item.site} target='_blank'>{item.site}</a>
+                                                <a href={item.site.startsWith('http') ? item.site : `https://${item.site}`} target='_blank' rel="noopener noreferrer">{item.site}</a>
                                                 <div className='lordiconcopy size-7 cursor-pointer' onClick={() => { copyText(item.site) }}>
                                                     <lord-icon
                                                         style={{ "width": "25px", "height": "25px", "paddingTop": "3px", "paddingLeft": "3px" }}

@@ -5,6 +5,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,6 +23,9 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+        
         try {
             const response = await fetch('https://password-manager-l927.onrender.com/api/auth/login', {
                 method: 'POST',
@@ -42,11 +47,16 @@ const Login = () => {
                     navigate('/dashboard');
                 }, 1000);
             } else {
+                setError(data.message || 'Login failed');
                 toast.error(data.message || 'Login failed');
             }
         } catch (error) {
-            toast.error('An error occurred. Please try again.');
+            const errorMessage = 'Network error. Please check your connection and try again.';
+            setError(errorMessage);
+            toast.error(errorMessage);
             console.error('Login error:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -63,6 +73,12 @@ const Login = () => {
                         <span>Login</span>
                         <span className="text-green-600">OP<img className="w-7 pl-1 inline-block" src="favicon.png" alt="" />&gt;</span>
                     </h1>
+                    
+                    {error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span className="block sm:inline">{error}</span>
+                        </div>
+                    )}
                     
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
@@ -94,9 +110,10 @@ const Login = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center items-center gap-2 bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 border hover:border-2 border-green-800"
+                                disabled={isLoading}
+                                className="w-full flex justify-center items-center gap-2 bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 border hover:border-2 border-green-800 disabled:opacity-50"
                             >
-                                Login
+                                {isLoading ? 'Logging in...' : 'Login'}
                             </button>
                         </div>
                     </form>
