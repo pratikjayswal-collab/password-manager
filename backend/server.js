@@ -19,7 +19,7 @@ const port = process.env.PORT || 3000
 
 // Configure CORS to accept requests from your Vercel domain
 app.use(cors({
-  origin: ['https://your-vercel-app-domain.vercel.app', 'http://localhost:3000', 'http://localhost:5173'],
+  origin: ['https://password-manager-lac-sigma.vercel.app', 'http://localhost:3000', 'http://localhost:5173'],
   credentials: true
 }))
 
