@@ -1,36 +1,32 @@
-// api/_utils/database.js
-const { MongoClient } = require('mongodb')
-const url = process.env.MONGODB_URI || 'mongodb://localhost:27017'
-const dbName = 'passwordManager'
+import { MongoClient } from 'mongodb';
 
-let cachedClient = null
-let cachedDb = null
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB = process.env.MONGODB_DB || 'passwordManager';
+
+// Check if MongoDB URI is defined
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
+
+let cachedClient = null;
+let cachedDb = null;
 
 async function connectToDatabase() {
   // If we have a cached connection, use it
   if (cachedClient && cachedDb) {
-    return {
-      client: cachedClient,
-      db: cachedDb
-    }
+    return { client: cachedClient, db: cachedDb };
   }
 
-  // If no cached connection, create a new one
-  const client = await MongoClient.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  // Create a new connection
+  const client = new MongoClient(MONGODB_URI);
+  await client.connect();
+  const db = client.db(MONGODB_DB);
 
-  const db = client.db(dbName)
-  
   // Cache the connection
-  cachedClient = client
-  cachedDb = db
-  
-  return {
-    client,
-    db
-  }
+  cachedClient = client;
+  cachedDb = db;
+
+  return { client, db };
 }
 
-module.exports = connectToDatabase
+export default connectToDatabase;
