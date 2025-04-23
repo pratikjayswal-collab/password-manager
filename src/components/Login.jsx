@@ -8,6 +8,9 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    
+    // API base URL - will use relative paths for Vercel deployment
+    const API_BASE = '/api';
 
     useEffect(() => {
         // Check if user is already logged in
@@ -27,7 +30,7 @@ const Login = () => {
         setError(null);
         
         try {
-            const response = await fetch('https://password-manager-l927.onrender.com/api/auth/login', {
+            const response = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,7 +74,7 @@ const Login = () => {
                     <h1 className="text-3xl font-bold text-center mb-6">
                         <span className="text-green-600">&lt;</span>
                         <span>Login</span>
-                        <span className="text-green-600">OP<img className="w-7 pl-1 inline-block" src="favicon.png" alt="" />&gt;</span>
+                        <span className="text-green-600">OP<img className="w-7 pl-1 inline-block" src="/favicon.png" alt="" />&gt;</span>
                     </h1>
                     
                     {error && (

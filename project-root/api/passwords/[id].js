@@ -1,7 +1,7 @@
 // api/passwords/[id].js
 const { ObjectId } = require('mongodb')
-const { authenticateToken } = require('../_utils/auth')
-const connectToDatabase = require('../_utils/database')
+const { authenticateToken } = require('../../utils/auth')
+const connectToDatabase = require('../../utils/database')
 
 export default async function handler(req, res) {
   try {

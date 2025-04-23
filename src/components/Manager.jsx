@@ -15,6 +15,9 @@ const Manager = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // API base URL - will use relative paths for Vercel deployment
+    const API_BASE = '/api';
+
     // Check for authentication
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -33,7 +36,7 @@ const Manager = () => {
                 return;
             }
 
-            const req = await fetch("https://password-manager-l927.onrender.com/api/passwords", {
+            const req = await fetch(`${API_BASE}/passwords`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -82,12 +85,12 @@ const Manager = () => {
     };
 
     const showPassword = () => {
-        if (ref.current.src.includes("icons/eyecross.png")) {
-            ref.current.src = "icons/eye.png";
+        if (ref.current.src.includes("/icons/eyecross.png")) {
+            ref.current.src = "/icons/eye.png";
             passwordRef.current.type = "password";
         } else {
             passwordRef.current.type = "text";
-            ref.current.src = "icons/eyecross.png";
+            ref.current.src = "/icons/eyecross.png";
         }
     };
 
@@ -104,7 +107,7 @@ const Manager = () => {
 
                 // If editing an existing password, delete it first
                 if (form.id) {
-                    const deleteResponse = await fetch(`https://password-manager-l927.onrender.com/api/passwords/${form.id}`, { 
+                    const deleteResponse = await fetch(`${API_BASE}/passwords/${form.id}`, { 
                         method: "DELETE", 
                         headers: { 
                             "Content-Type": "application/json",
@@ -121,7 +124,7 @@ const Manager = () => {
                 const newId = form.id || uuidv4();
                 
                 // Save to backend
-                const saveResponse = await fetch("https://password-manager-l927.onrender.com/api/passwords", { 
+                const saveResponse = await fetch(`${API_BASE}/passwords`, { 
                     method: "POST", 
                     headers: { 
                         "Content-Type": "application/json",
@@ -183,7 +186,7 @@ const Manager = () => {
                 setPasswordArray(passwordArray.filter(item => item.id !== id));
                 
                 // Then perform backend operation
-                const response = await fetch(`https://password-manager-l927.onrender.com/api/passwords/${id}`, {
+                const response = await fetch(`${API_BASE}/passwords/${id}`, {
                     method: "DELETE", 
                     headers: {
                         "Content-Type": "application/json",
@@ -241,7 +244,7 @@ const Manager = () => {
                 <h1 className='text-4xl font-bold text-center'>
                     <span className='text-green-600'>&lt;</span>
                     <span>Pass</span>
-                    <span className='text-green-600'>OP<img className='w-9 pl-1 inline-block' src="favicon.png" alt="" />
+                    <span className='text-green-600'>OP<img className='w-9 pl-1 inline-block' src="/favicon.png" alt="" />
                         &gt;</span>
                 </h1>
                 <p className='text-green-900 text-lg text-center'>Your own password manager.</p>
@@ -252,7 +255,7 @@ const Manager = () => {
                         <div className="relative">
                             <input ref={passwordRef} value={form.password} onChange={handleChange} placeholder='Enter Password' className='rounded-full border border-green-500 w-full px-4 py-1' type="password" name='password' id='password'/>
                             <span className='absolute right-[3px] top-[3px] cursor-pointer' onClick={showPassword}>
-                                <img ref={ref} className='p-1' width={27} src="icons/eye.png" alt="" />
+                                <img ref={ref} className='p-1' width={27} src="/icons/eye.png" alt="" />
                             </span>
                         </div>
                     </div>

@@ -10,10 +10,11 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     
-    // API base URL - use environment variable or fallback to your Render URL
-    const API_URL = 'https://password-manager-l927.onrender.com';
+    // API base URL - use relative path for Vercel deployment
+    const API_BASE = '/api';
 
     useEffect(() => {
         // Check if user is already logged in
@@ -29,20 +30,24 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         
         // Password validation
         if (formData.password !== formData.confirmPassword) {
             toast.error('Passwords do not match');
+            setIsLoading(false);
             return;
         }
         
         if (formData.password.length < 6) {
             toast.error('Password must be at least 6 characters');
+            setIsLoading(false);
             return;
         }
         
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
+            // Match the API endpoint pattern used in your Login component
+            const response = await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,6 +72,8 @@ const Register = () => {
         } catch (error) {
             toast.error('An error occurred. Please try again.');
             console.error('Registration error:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -81,7 +88,7 @@ const Register = () => {
                     <h1 className="text-3xl font-bold text-center mb-6">
                         <span className="text-green-600">&lt;</span>
                         <span>Register</span>
-                        <span className="text-green-600">OP<img className="w-7 pl-1 inline-block" src="favicon.png" alt="" />&gt;</span>
+                        <span className="text-green-600">OP<img className="w-7 pl-1 inline-block" src="/favicon.png" alt="" />&gt;</span>
                     </h1>
                     
                     <form onSubmit={handleSubmit} className="space-y-4">
@@ -141,9 +148,10 @@ const Register = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full flex justify-center items-center gap-2 bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 border hover:border-2 border-green-800"
+                                disabled={isLoading}
+                                className="w-full flex justify-center items-center gap-2 bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 border hover:border-2 border-green-800 disabled:opacity-50"
                             >
-                                Register
+                                {isLoading ? 'Registering...' : 'Register'}
                             </button>
                         </div>
                     </form>

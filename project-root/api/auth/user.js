@@ -1,7 +1,7 @@
 // api/auth/user.js
 const { ObjectId } = require('mongodb')
-const connectToDatabase = require('../_utils/database')
-const { authenticateToken } = require('../_utils/auth')
+const connectToDatabase = require('../../utils/database')
+const { authenticateToken } = require('../../utils/auth')
 
 export default async function handler(req, res) {
   // Only allow GET method

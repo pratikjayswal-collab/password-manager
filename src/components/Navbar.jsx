@@ -17,7 +17,7 @@ const Navbar = () => {
                 <Link to="/" className="logo font-bold text-2xl">
                     <span className='text-green-600'>&lt;</span>
                     <span>Pass</span>
-                    <span className='text-green-600'>OP <img className='pr-[2px] w-6 inline-block' src="favicon.png" alt="" />
+                    <span className='text-green-600'>OP <img className='pr-[2px] w-6 inline-block' src="/favicon.png" alt="" />
                         &gt;</span>
                 </Link>
                 
@@ -49,8 +49,8 @@ const Navbar = () => {
                         </div>
                     )}
                     
-                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className='text-white rounded-2xl flex justify-between items-center bg-green-700 ring-[#96baa3] ring-1'>
-                        <img className='invert w-10 p-1' src="icons/github.svg" alt="" />
+                    <a href="https://github.com/yourusername/password-manager" target="_blank" rel="noopener noreferrer" className='text-white rounded-2xl flex justify-between items-center bg-green-700 ring-[#96baa3] ring-1'>
+                        <img className='invert w-10 p-1' src="/icons/github.svg" alt="" />
                         <span className='font-bold px-2'>GitHub</span>
                     </a>
                 </div>

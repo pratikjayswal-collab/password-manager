@@ -1,6 +1,6 @@
 // api/auth/register.js
 const bcrypt = require('bcryptjs')
-const connectToDatabase = require('../_utils/database')
+const connectToDatabase = require('../../utils/database')
 
 export default async function handler(req, res) {
   // Only allow POST method

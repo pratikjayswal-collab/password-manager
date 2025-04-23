@@ -1,7 +1,7 @@
 // api/auth/login.js
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const connectToDatabase = require('../_utils/database')
+const connectToDatabase = require('../../utils/database')
 
 export default async function handler(req, res) {
   // Only allow POST method
