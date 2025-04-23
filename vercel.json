@@ -3,13 +3,13 @@
   "builds": [
     { "src": "api/**/*.js", "use": "@vercel/node" },
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "src": "vite.config.js",
+      "use": "@vercel/vite"
     }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
