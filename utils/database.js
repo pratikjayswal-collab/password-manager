@@ -1,4 +1,5 @@
-import { MongoClient } from 'mongodb';
+// utils/database.js
+const { MongoClient } = require('mongodb');
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB || 'passwordManager';
@@ -29,4 +30,4 @@ async function connectToDatabase() {
   return { client, db };
 }
 
-export default connectToDatabase;
+module.exports = { connectToDatabase };

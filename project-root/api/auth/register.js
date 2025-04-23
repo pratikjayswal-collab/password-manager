@@ -1,7 +1,21 @@
-import bcrypt from 'bcryptjs';
-import connectToDatabase from '../../utils/database';
+// api/auth/register.js
+// At the top of your register.js handler
+res.setHeader('Access-Control-Allow-Credentials', true);
+res.setHeader('Access-Control-Allow-Origin', '*');
+res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+res.setHeader(
+  'Access-Control-Allow-Headers',
+  'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+);
 
-export default async function handler(req, res) {
+if (req.method === 'OPTIONS') {
+  return res.status(200).end();
+}
+
+const bcrypt = require('bcryptjs');
+const { connectToDatabase } = require('../../utils/database');
+
+module.exports = async (req, res) => {
   // Only allow POST method
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
@@ -38,12 +52,12 @@ export default async function handler(req, res) {
       createdAt: new Date()
     });
     
-    res.status(201).json({
+    return res.status(201).json({
       message: 'User registered successfully',
       userId: result.insertedId
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+    return res.status(500).json({ message: 'Server error during registration' });
   }
-}
+};
